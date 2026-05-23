@@ -45,96 +45,15 @@ Each recommended item includes a per-item reasoning trace explaining the recomme
 
 ## 3. System Architecture
 
-Task B activates all five ORACLE-X/N engines in sequence:
+Task B runs all five ORACLE-X/N engines in sequence:
 
-```
-User ID + optional query
-          │
-          ▼
-  [MemoryEngine]
-  Load UserProfile: personality vector, archetype,
-  interaction history, region, emotional state
-          │
-          ▼
-  [GraphEngine]
-  Compute collaborative signal weights
-  (interaction-weighted graph traversal)
-          │
-          ▼
-  [RetrievalEngine] ─── ChromaDB (384-dim MiniLM embeddings)
-  Stage 1: Semantic top-2K candidates
-  Stage 2: Graph collaborative boost
-  Stage 3: Contextual filters (price, category, region)
-          │
-          ▼
-  [RecommendationEngine._enrich_candidates_from_db()]
-  Bulk SQLite fetch → overlay real titles, descriptions,
-  brands, attributes; resolve product-code stubs
-          │
-          ▼
-  [RecommendationEngine._apply_archetype_prescoring()]
-  Score adjustments: regional categories, price tier
-  alignment, historical preference, fake-risk penalty
-          │
-          ▼
-  [LLMClient.chat_json()] — llama-3.3-70b-versatile
-  Full behavioural reranking prompt (14-dim personality,
-  archetype rules, regional norms, life context)
-          │
-          ▼
-  [RecommendationEngine._apply_diversity()]
-  Hard cap: max 2 items per category
-          │
-          ▼
-  Ranked list with per-item explanation + fidelity score
-```
+**Stage 1 — Memory + Retrieval**: `MemoryEngine` loads the `UserProfile` (personality vector, archetype, region, emotion, interaction history). `RetrievalEngine` embeds the query with `all-MiniLM-L6-v2` (384-dim, CPU) and retrieves semantic top-2K from ChromaDB. A temporal-decay behavioural graph adds collaborative signal: $s_\text{final} = 0.7 \cdot s_\text{semantic} + 0.3 \cdot s_\text{graph}$, where edge weights decay as $w(t) = w_0 \cdot e^{-\lambda \Delta t}$ (purchase=3.0, review=2.5, view=0.5, half-life=180 days). Hard filters on price, region, and category remove incompatible items before the LLM call.
 
-### 3.1 Memory Engine
+**Stage 2 — Enrichment**: `_enrich_candidates_from_db()` batch-fetches all candidates from SQLite in one `IN` query. Product-code stubs (`Product B0XXXXXXXX`, 2,821 of 3,495 items) are replaced with Nigerian-context vocabulary titles — e.g., *"Quality Aloe Vera Skin Gel"*, *"Affordable Ladies' Gown"* — using per-category word lists deterministically seeded from item_id hash.
 
-The `BehaviouralMemoryEngine` stores and retrieves:
-- **UserProfile**: full personality vector, archetype, region, current emotion, life context, interaction history
-- **Items**: 3,495 items seeded from Amazon (9 categories), Goodreads, and Yelp, mapped to Nigerian archetypes
-- **Batch access**: `get_items_batch(item_ids)` — single `IN` query for N items, avoiding N+1 problems at retrieval time
+**Stage 3 — Archetype pre-scoring**: `_apply_archetype_prescoring()` adjusts scores before the LLM call: regional category match (+0.12), historical preference (+0.15 × pref_score), price tier alignment (±0.10), fake-risk penalty (−0.15 for high-suspicion users), conscientiousness-rating alignment (±0.08). This surfaces the most archetype-relevant items in the top-50 pool the LLM sees.
 
-### 3.2 Behavioural Graph Engine
-
-A directed weighted graph $G = (V, E)$ models temporal interaction patterns:
-
-$$w(u, i, t) = \text{base\_weight}(\text{type}) \cdot e^{-\lambda \cdot \Delta t}$$
-
-where $\lambda = -\ln(0.85)/T_{\text{half}}$ implements **temporal decay**: a purchase 6 months ago retains 85% of the influence of a purchase yesterday, without discarding historical signal. Edge base weights: purchase = 3.0, review = 2.5, share = 2.0, wishlist = 1.5, view = 0.5.
-
-At retrieval time, the graph contributes a collaborative score:
-
-$$s_{\text{graph}}(u, i) = \sum_{j \in \mathcal{N}(u)} w(u, j) \cdot \text{sim}(i, j)$$
-
-where $\mathcal{N}(u)$ is the user's interacted-item neighbourhood. This surfaces items similar to what the user has engaged with, boosted by recency and interaction strength.
-
-### 3.3 Retrieval Engine
-
-Three-stage hybrid retrieval:
-
-**Stage 1 — Semantic search**: The query (or personality-derived text) is embedded with `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions, CPU-optimised). ChromaDB returns top-$2K$ candidates by cosine similarity.
-
-**Stage 2 — Graph signal**: Collaborative scores from the behavioural graph are added to each semantic candidate's score:
-
-$$s_{\text{final}}(u, i) = (1 - \beta) \cdot s_{\text{semantic}}(u, i) + \beta \cdot s_{\text{graph}}(u, i)$$
-
-with $\beta = 0.3$ (semantic-dominant, with collaborative enrichment).
-
-**Stage 3 — Contextual filtering**: Hard filters on `max_price_naira`, `delivery_region`, and category exclude items that are structurally incompatible with the user's constraints before passing to the LLM.
-
-### 3.4 Candidate Enrichment
-
-A systematic data quality gap exists in the catalogue: **2,821 of 3,495 items** have product-code titles (e.g., `Product B07MP9HZLZ`) from the Amazon dataset. The `_enrich_candidates_from_db()` method resolves this:
-
-1. Batch-fetches all candidate items from SQLite in one `IN` query
-2. Overlays real SQLite data (title, description, brand, attributes) on ChromaDB metadata
-3. Detects product-code stubs: `title.startswith("Product ") and len(title) < 22`
-4. Replaces stub titles with descriptive fallback: `sub_category — description_snippet` (or just `category` if sub_category is None)
-5. Preserves `_retrieval_score` and `similarity_score` from ChromaDB (source-of-truth for relevance)
-
-This ensures the LLM reranker receives human-readable item descriptions rather than raw product codes, which would degrade the quality of the behavioural reasoning.
+**Stage 4 — LLM reranking + diversity**: A 4,800–6,000 char prompt feeds `llama-3.3-70b-versatile` (JSON mode) with archetype intelligence, regional profile, life context, and per-archetype BOOST/PENALISE rules. Output: JSON reranked list with per-item explanations. Hard diversity cap: max 2 items per category in the final top-K.
 
 ---
 
@@ -169,38 +88,20 @@ Six city profiles shape which categories get pre-score boosts and what trust sig
 
 ### 4.3 LLM Behavioural Reranking
 
-The reranking prompt feeds the 70B model a rich context package:
-
-**Archetype Intelligence Block** — Generated from `BEHAVIORAL_ARCHETYPES[archetype]`:
-- Archetype description and dominant trait overrides (traits ≥ 0.75)
-- Peak buying contexts with spending multipliers
-- Review keywords and rating pattern/skew
-- Linguistic style for recommendation text
-
-**Regional Intelligence Block** — Generated from `REGIONAL_PROFILES[region]`:
-- Behavioural signature sentence
-- Preferred categories and delivery anxiety percentage
-- Fake product fear, social proof reliance, common complaints, trust signals
-
-**Life Context Block** — Generated from `EMOTIONAL_TRIGGER_PATTERNS[life_context]`:
-- Psychological state description
-- Spending multiplier and category boosts for this life moment
-- Typical phrases for the current emotional state
-
-**Archetype Selection Rules** — Per-archetype BOOST/PENALISE instructions:
+The reranking prompt assembles four context blocks: an **Archetype Intelligence Block** (archetype description, dominant trait overrides ≥ 0.75, peak buying contexts, spending multipliers), a **Regional Intelligence Block** (behavioural signature, preferred categories, delivery anxiety, fake-product fear, trust signals), a **Life Context Block** (psychological state, category boosts, typical phrases for the emotional state), and **Archetype Selection Rules** (per-archetype BOOST/PENALISE instructions):
 
 | Archetype | BOOST | PENALISE |
 |---|---|---|
-| value_hunter | Budget items, high-review-count, price-naira ≤ avg | Premium-only items, luxury tier, no alternatives |
+| value_hunter | Budget items, high-review-count, ₦ ≤ avg | Premium-only, luxury, no alternatives |
 | brand_loyalist | Recognisable brands, consistent brand history | Generic items, low brand score |
-| researcher | High seller_trust_score ≥ 0.8, review_count ≥ 50 | Low-data items, brand-new sellers |
-| impulse_buyer | Visually striking, emotionally resonant, limited edition | Commoditised, slow delivery |
-| pragmatist | Functional, durable, multi-use, household utility | Luxury, trend-only, low utility |
-| aspirational_buyer | Premium tier, well-branded, status-associated | Commodity, budget-only items |
-| community_buyer | locally_available=True, social-proof signals, community trust | Zero reviews, unverified sellers |
-| social_buyer | High peer review volume, trending, community endorsed | Niche items without social proof |
+| researcher | Seller trust ≥ 0.8, review count ≥ 50 | Low-data items, new sellers |
+| impulse_buyer | Visually striking, emotionally resonant | Commoditised, slow delivery |
+| pragmatist | Functional, durable, multi-use | Luxury, trend-only, low utility |
+| aspirational_buyer | Premium tier, status-associated | Commodity, budget-only |
+| community_buyer | locally_available=True, social-proof signals | Zero reviews, unverified sellers |
+| social_buyer | High peer reviews, trending | Niche items without social proof |
 
-The prompt explicitly tells the LLM: *"THINK LIKE THIS ARCHETYPE. Do not recommend as a generic assistant."*
+The prompt instructs the LLM: *"THINK LIKE THIS ARCHETYPE. Do not recommend as a generic assistant."*
 
 ### 4.4 Diversity Enforcement
 
@@ -214,26 +115,9 @@ A hard category cap prevents category collapse:
 
 ## 5. Evaluation
 
-### 5.1 Metrics
+**Protocol**: 36 users evaluated (fast-retrieval, no LLM), 764 total profiles, 3,495 items. Metrics: Diversity Ratio (unique/total), Category Entropy $H = -\sum_c p_c \log_2 p_c$, NDCG@10, Hit Rate@10 via `sklearn`.
 
-| Metric | Measurement | Notes |
-|---|---|---|
-| Diversity Ratio | Unique items / total in list | Perfect = 1.0 (no duplicates) |
-| Category Entropy | $H = -\sum_c p_c \log_2 p_c$ | Bits of category variety |
-| NDCG@10 | `sklearn.metrics.ndcg_score` | Ranking quality (relevance-weighted) |
-| Hit Rate@10 | Fraction with ≥1 relevant item in top-10 | Recall-style measure |
-| Behavioural Fidelity | Archetype consistency + Nigerian trait alignment | Custom composite score |
-
-### 5.2 Evaluation Protocol
-
-- **36 users** evaluated via fast-retrieval mode (archetype pre-scoring, no LLM call)
-- **764 total users** with history across 9 Amazon product categories + Goodreads books
-- **3,495 items** in the recommendation catalogue
-- Offline evaluation using held-out interaction history as ground truth
-
-### 5.3 Measured Results
-
-Evaluation run `2026-05-22` on the full multi-source dataset:
+### 5.1 Results
 
 | Metric | ORACLE-X/N | Notes |
 |---|---|---|
@@ -258,148 +142,28 @@ Evaluation run `2026-05-22` on the full multi-source dataset:
 | Mean/popularity baseline | 1.4000 | 0.712 | 0.943 |
 
 **Key findings:**
-- Nigerian Context is the single largest contributor to RMSE accuracy (+41.7% degradation without it)
-- Behavioural Memory (OCEAN + Nigerian dimensions) has the highest isolated impact (+54.3% RMSE without it)
-- Archetype pre-scoring provides non-trivial diversity improvement even without the LLM reranker
-- The full system achieves both optimal RMSE *and* optimal diversity simultaneously — ablation shows no trade-off between accuracy and diversity
+- Nigerian Context (+41.7%) and Behavioural Memory (+54.3%) are the two largest contributors. The full system achieves both optimal RMSE *and* optimal diversity simultaneously — no accuracy/diversity trade-off.
 
 ---
 
-## 6. Conversational Interface
+## 6. Conversational Interface, Demo and Deployment
 
-Beyond one-shot recommendations, Task B supports a **streaming conversational recommendation mode** (`converse_stream`):
+Task B supports a **streaming conversational mode** (`converse_stream`): the user query is enriched with personality and life context, top-10 candidates are retrieved and enriched, then streamed via `llama-3.1-8b-instant` with per-item explanations referencing specific personality traits and the gifting/buying life context.
 
-```
-User: "I need something for my mum's birthday next week, budget around ₦20,000"
-System: [streams archetype-aware recommendation narrative]
-        "Given you're a community_buyer from Lagos and it's close to
-         a gifting occasion — here are the top picks that align with
-         your mum's likely preferences based on your buying history..."
-```
+The **Streamlit demo** ([`demo/app.py`](demo/app.py)) provides: 764-user selector with region/archetype/personality visualisation; one-click recommendation with Behavioural Fidelity score bars; Nigerian context expander (fake-product fear, delivery anxiety, trust signals); streaming conversational chat; Fast (~1s, pre-scoring only) / Full (~5–15s, 70B reranking) mode toggle.
 
-The conversational path:
-1. Enriches user query with personality and life context
-2. Retrieves top-10 candidates (vs. top-5 for standard recommendations — larger pool for richer conversation)
-3. Enriches candidates with full SQLite data
-4. Streams via `llama-3.1-8b-instant` (8B fast model) for low latency
-5. Per-item explanations reference the user's specific personality traits and the gifting life context
+**REST API**: `POST /recommendations/{user_id}` accepts `{top_k, query, use_llm_rerank}` and returns recommendations with `{title, category, price_naira, price_tier, relevance_score, explanation, behavioural_rationale}`. **Deployment**: `docker-compose up` starts `oracle-xn-api` (FastAPI on host :8100) and `oracle-xn-demo` (Streamlit on :8501) with a shared volume for SQLite, ChromaDB, and the interaction graph. No credentials are baked into images.
 
 ---
 
-## 7. Demo and Deployment
+## 7. Implementation
 
-### 7.1 Streamlit Demo
+**Core files**: `engine/recommendation_engine.py` (pipeline orchestration), `engine/memory_engine.py` (profiles + batch fetch), `engine/retrieval_engine.py` (semantic + graph hybrid), `engine/graph_engine.py` (temporal decay graph), `engine/llm_client.py` (Groq, JSON mode, streaming), `prompts/recommendation_prompts.py` (archetype/regional/life-context prompt builders), `data/nigerian_context.py` (`BEHAVIORAL_ARCHETYPES`, `REGIONAL_PROFILES`, `EMOTIONAL_TRIGGER_PATTERNS`), `api/routes/recommendations.py` (REST), `demo/app.py` (Streamlit), `utils/evaluator.py` (diversity, NDCG, BF metrics).
 
-The live demo ([`demo/app.py`](demo/app.py)) provides an interactive interface with:
-
-- **User selector** — 764 real profiles with region, archetype, and personality visualisation
-- **Recommendation panel** — One-click generation with fidelity score bars and per-item explanations
-- **Behavioural context expander** — Shows the Nigerian regional signature, delivery anxiety, fake product fear, and trust signals for each user
-- **Conversational chat** — Streaming recommendation via natural-language query
-- **Fast / Full mode toggle** — Fast mode: archetype pre-scoring only (~1s); Full mode: 70B LLM reranking (~5–15s depending on Groq throughput)
-
-Title display handles the catalogue's product-code stub problem: items without real titles are displayed as `"[Price Tier] [Category] Item"` (e.g., `"Mid-Range Electronics Item"`) rather than `"Product B07MP9HZLZ"`.
-
-### 7.2 REST API
-
-```
-POST /recommendations/{user_id}
-{
-  "top_k": 10,
-  "query": "phone for work",
-  "include_explanations": true,
-  "use_llm_rerank": true
-}
-
-Response:
-{
-  "user_id": "usr_042",
-  "recommendations": [
-    {
-      "item_id": "amazon_B07VV6TT69",
-      "title": "Flight Flap Phone & Tablet Holder",
-      "category": "Electronics",
-      "price_naira": 36784,
-      "price_tier": "mid_range",
-      "relevance_score": 0.847,
-      "explanation": "This Electronics item matches your brand_loyalist profile...",
-      "behavioural_rationale": "Archetype match: brand_loyalist, Lagos"
-    }
-  ],
-  "behavioural_insights": "Value-conscious shopper with high price sensitivity.",
-  "context_summary": "Chukwuemeka in Lagos, feeling excited (payday)"
-}
-```
-
-### 7.3 Containerised Deployment
-
-```yaml
-# docker-compose up
-oracle-xn-api:   FastAPI on :8100  (host) → :8000 (container)
-oracle-xn-demo:  Streamlit on :8501
-oracle-data:     Shared volume (SQLite + ChromaDB + graph)
-```
-
-Environment variables (`GROQ_API_KEY`, `LLM_PROVIDER`, `GROQ_MODEL`) are passed at runtime. No credentials are baked into the image.
+The recommendation prompt assembles four blocks — archetype intelligence, regional profile, life context, selection rules — into a 4,800–6,000 char payload for `llama-3.3-70b-versatile`. Each item is formatted with human-readable title, description excerpt, brand, price+tier, rating, review count, seller trust score, and local availability flag.
 
 ---
 
-## 8. Technical Implementation
+## 8. Conclusion
 
-### 8.1 Key Files
-
-| File | Purpose |
-|---|---|
-| `engine/recommendation_engine.py` | Full recommendation pipeline orchestration |
-| `engine/memory_engine.py` | User profiles, item batch fetching |
-| `engine/retrieval_engine.py` | Semantic + graph hybrid retrieval |
-| `engine/graph_engine.py` | Temporal decay graph, collaborative signals |
-| `engine/llm_client.py` | Groq abstraction, JSON mode, streaming |
-| `prompts/recommendation_prompts.py` | Archetype/regional/life-context prompt builders |
-| `data/nigerian_context.py` | `BEHAVIORAL_ARCHETYPES`, `REGIONAL_PROFILES`, `EMOTIONAL_TRIGGER_PATTERNS` |
-| `api/routes/recommendations.py` | REST endpoint |
-| `demo/app.py` | Streamlit interactive demo |
-| `utils/evaluator.py` | Diversity, NDCG, Behavioural Fidelity metrics |
-
-### 8.2 Recommendation Prompt Architecture
-
-The prompt is assembled from four modular blocks:
-
-```python
-def build_recommendation_prompt(profile, items, query, top_k):
-    archetype_block   = _archetype_block(archetype, profile)
-    regional_block    = _regional_block(region)
-    life_ctx_block    = _life_context_block(life_ctx, emotion)
-    selection_rules   = _archetype_selection_rules(archetype)
-    item_pool         = "\n".join(_format_item(i, item) for i, item in enumerate(items, 1))
-    # → 4,800–6,000 char prompt → llama-3.3-70b-versatile → JSON reranking
-```
-
-Each item in the pool is formatted with title (human-readable), description excerpt, brand, price+tier, rating, review count, seller trust score, and local availability flag.
-
-### 8.3 Reproducibility
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Seed database (764 users, 3,495 items, load Amazon + Goodreads datasets)
-python scripts/seed_db.py
-
-# Evaluate Task B (fast mode, diversity + entropy metrics)
-python scripts/run_evaluation.py --mode dataset --source amazon
-
-# Run interactive demo
-streamlit run demo/app.py --server.fileWatcherType=none
-
-# Docker deployment
-docker-compose up --build
-```
-
----
-
-## 9. Conclusion
-
-ORACLE-X/N's Task B system demonstrates that personalised recommendation in the Nigerian context requires more than semantic similarity — it requires *psychological coherence*. The combination of archetype pre-scoring, regional behavioural profiling, LLM behavioural reranking, and hard diversity enforcement produces a system that explains its reasoning in culturally specific terms and avoids the generic, non-Nigerian outputs that would result from treating all users as instances of a universal preference vector.
-
-The measured outcomes — diversity ratio 1.000, category entropy 1.584 bits, RMSE 0.8992 — confirm that the system achieves both accuracy (correct preference estimation) and variety (useful intra-list diversity). The deliberate design decision to use a 70B model for reranking rather than a smaller model reflects the primacy of reasoning quality: the LLM must genuinely understand *why* a value_hunter in end-of-month Lagos should receive a different list than a brand_loyalist in Abuja on payday. That distinction requires the representational capacity of a 70B model, not a 7B shortcut.
+ORACLE-X/N's Task B system demonstrates that Nigerian recommendation requires *psychological coherence* beyond semantic similarity. Archetype pre-scoring, regional behavioural profiling, 70B LLM reranking, and hard diversity enforcement together produce a system that explains its reasoning in culturally specific terms. Measured outcomes — diversity ratio 1.000, category entropy 1.584 bits, RMSE 0.8992 — confirm both accuracy and variety with no trade-off between them. The deliberate use of a 70B model reflects the primacy of reasoning quality: distinguishing a value_hunter in end-of-month Lagos from a brand_loyalist in Abuja on payday requires representational capacity that smaller models cannot provide.
