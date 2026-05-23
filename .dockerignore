@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local database & persisted state (will be recreated inside container)
+oracle_xn.db
+oracle_graph.pkl
+*.db-shm
+*.db-wal
+chroma_db/
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Streamlit cache
+.streamlit/secrets.toml
+
+# Test / eval artefacts
+reports/
+scripts/__pycache__/
+
+# Secrets
+.env
+*.pem
+*.key

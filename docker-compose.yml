@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# ORACLE-X/N  —  docker-compose.yml
+#
+# Services:
+#   oracle-api    FastAPI backend  (port 8000)
+#   oracle-demo   Streamlit demo   (port 8501)
+#
+# Volumes:
+#   oracle-data   Shared persistent storage for SQLite, ChromaDB, graph
+#
+# Usage:
+#   docker-compose up --build
+#   docker-compose run --rm oracle-api python scripts/seed_db.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  oracle-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oracle-xn-api:latest
+    container_name: oracle-xn-api
+    ports:
+      - "8100:8000"  # 8000 used by VerifyNG on host
+    volumes:
+      - oracle-data:/data
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LLM_PROVIDER=groq
+      - GROQ_MODEL=llama-3.3-70b-versatile
+      - GROQ_FAST_MODEL=llama-3.1-8b-instant
+      - DATABASE_URL=sqlite:////data/sqlite/oracle_xn.db
+      - CHROMA_PERSIST_DIR=/data/chroma_db
+      - GRAPH_PERSIST_PATH=/data/oracle_graph.pkl
+      - ENABLE_NIGERIAN_CONTEXT=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  oracle-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oracle-xn-demo:latest
+    container_name: oracle-xn-demo
+    command: >
+      streamlit run demo/app.py
+        --server.port=8501
+        --server.address=0.0.0.0
+        --server.headless=true
+        --browser.gatherUsageStats=false
+        --server.fileWatcherType=none
+    ports:
+      - "8501:8501"
+    volumes:
+      - oracle-data:/data
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LLM_PROVIDER=groq
+      - GROQ_MODEL=llama-3.3-70b-versatile
+      - GROQ_FAST_MODEL=llama-3.1-8b-instant
+      - DATABASE_URL=sqlite:////data/sqlite/oracle_xn.db
+      - CHROMA_PERSIST_DIR=/data/chroma_db
+      - GRAPH_PERSIST_PATH=/data/oracle_graph.pkl
+      - ENABLE_NIGERIAN_CONTEXT=true
+    restart: unless-stopped
+
+volumes:
+  oracle-data:
+    driver: local

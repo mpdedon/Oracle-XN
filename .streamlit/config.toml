@@ -1,0 +1,8 @@
+[server]
+# Use inotify/poll-based file watching to avoid module-path traversal.
+# "none" still triggers get_module_paths() at startup in newer Streamlit.
+# "poll" uses os.stat() and completely skips the transformers/torchvision sub-module scan.
+fileWatcherType = "poll"
+
+[browser]
+gatherUsageStats = false

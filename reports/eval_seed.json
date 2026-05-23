@@ -1,0 +1,269 @@
+{
+  "task_a": {
+    "task": "A \u2014 Rating Prediction",
+    "n_users": 30,
+    "n_datapoints": 56,
+    "overall_mae": 0.3268,
+    "overall_rmse": 0.6704,
+    "best_case_mae": 0.0,
+    "worst_case_mae": 2.0,
+    "per_user": {
+      "amazon_AE236YP3ZIRW4LLJQXTMQUTE3Y2Q": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User QUTE3Y2Q"
+      },
+      "amazon_AE25NQAZI3725GZIL5FS52ZIKWKQ": {
+        "mae": 1.5,
+        "n_items": 2,
+        "display_name": "Amazon User 52ZIKWKQ"
+      },
+      "amazon_AE26N5BRXPJ6PH2RXRAZFSMUJ2HQ": {
+        "mae": 0.0,
+        "n_items": 3,
+        "display_name": "Amazon User FSMUJ2HQ"
+      },
+      "amazon_AE26V67R6SYRBNAVUGZ2ROE5BAFQ": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User ROE5BAFQ"
+      },
+      "amazon_AE2D6CPWGFIJUD5RW3HB2D4KQSLA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User 2D4KQSLA"
+      },
+      "amazon_AE2DWV6OPSOUHDZEZQBC2MRYAOXA": {
+        "mae": 2.0,
+        "n_items": 2,
+        "display_name": "Amazon User 2MRYAOXA"
+      },
+      "amazon_AE2EUSV2YAM6MV62P4JCC3XBKWTQ": {
+        "mae": 0.5,
+        "n_items": 2,
+        "display_name": "Amazon User C3XBKWTQ"
+      },
+      "amazon_AE2JU3MEWV5JD7DLS5RLWRQK2OQQ": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User WRQK2OQQ"
+      },
+      "amazon_AE2ODQD5CBSZKNZLJCDKZFYKOTEQ": {
+        "mae": 0.0,
+        "n_items": 2,
+        "display_name": "Amazon User ZFYKOTEQ"
+      },
+      "amazon_AE2TA5GQH4JI5RQ4W5H5PQOVYBGA": {
+        "mae": 1.0,
+        "n_items": 4,
+        "display_name": "Amazon User PQOVYBGA"
+      },
+      "amazon_AE34VA3WMMQ66SY7HAFPRZNZUEBA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User RZNZUEBA"
+      },
+      "amazon_AE3KLVXGZPANXE5XLXYKHTVAZ3FQ": {
+        "mae": 0.0,
+        "n_items": 2,
+        "display_name": "Amazon User HTVAZ3FQ"
+      },
+      "amazon_AE3LOM7QWQC2PDQJ3KDBWSTIAEXA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User WSTIAEXA"
+      },
+      "amazon_AE3Q6AEWP7Y7CH4N6IWEP4YBNP2A": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User P4YBNP2A"
+      },
+      "amazon_AE3TASYGLHHRHUJUDFTKFDMWFIYA": {
+        "mae": 0.433,
+        "n_items": 3,
+        "display_name": "Amazon User FDMWFIYA"
+      },
+      "amazon_AE3U73QGVDLZUA2DSACCVDCYAY6Q": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User VDCYAY6Q"
+      },
+      "amazon_AE3X3OR52JVXEIQUXWVUP5XC5HYQ": {
+        "mae": 0.0,
+        "n_items": 5,
+        "display_name": "Amazon User P5XC5HYQ"
+      },
+      "amazon_AE3YAVL3JIQDT4GSV23DI6MJ7TRQ": {
+        "mae": 1.5,
+        "n_items": 2,
+        "display_name": "Amazon User I6MJ7TRQ"
+      },
+      "amazon_AE47Y5KU4OA7TP24OWQQOBITGJAQ": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User OBITGJAQ"
+      },
+      "amazon_AE4SRJ4IVDWUWGZF7BZ4MXH7WKUA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User MXH7WKUA"
+      },
+      "amazon_AE56U36OKSLHOJXLTYN6K5FVDSOQ": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User K5FVDSOQ"
+      },
+      "amazon_AE57MRF2R2ALCC6H5WQLFKT7KSSA": {
+        "mae": 0.0,
+        "n_items": 2,
+        "display_name": "Amazon User FKT7KSSA"
+      },
+      "amazon_AE5DIA2HDWBPNGBO2FXN2PF4NQJA": {
+        "mae": 1.0,
+        "n_items": 2,
+        "display_name": "Amazon User 2PF4NQJA"
+      },
+      "amazon_AE5GHFQZ6IXM4QNYTLTYJO24KQZQ": {
+        "mae": 0.0,
+        "n_items": 3,
+        "display_name": "Amazon User JO24KQZQ"
+      },
+      "amazon_AE5PZITMWZJBPVKL7XXYUFBTITQA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User UFBTITQA"
+      },
+      "amazon_AE63SKK47DLG5EONUFB3GH4UUJRA": {
+        "mae": 0.0,
+        "n_items": 5,
+        "display_name": "Amazon User GH4UUJRA"
+      },
+      "amazon_AE6AL5KN3ZXJZD62ZVOOFMNOZ4PA": {
+        "mae": 0.0,
+        "n_items": 2,
+        "display_name": "Amazon User FMNOZ4PA"
+      },
+      "amazon_AE6DFDMIJAVW57EVMRJH2M2X6ACA": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User 2M2X6ACA"
+      },
+      "amazon_AE6G7PRIP3SPE2ROOU4AZG7HRD6Q": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User ZG7HRD6Q"
+      },
+      "amazon_AE6IF3GQ5FWDHK2S5CZYM3OQ5G3A": {
+        "mae": 0.0,
+        "n_items": 1,
+        "display_name": "Amazon User M3OQ5G3A"
+      }
+    }
+  },
+  "task_b": {
+    "task": "B \u2014 Recommendation Diversity",
+    "n_users": 14,
+    "avg_diversity_ratio": 0.929,
+    "avg_category_entropy": 2.179,
+    "per_user": {
+      "amazon_AE236YP3ZIRW4LLJQXTMQUTE3Y2Q": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User QUTE3Y2Q"
+      },
+      "amazon_AE25NQAZI3725GZIL5FS52ZIKWKQ": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User 52ZIKWKQ"
+      },
+      "amazon_AE26N5BRXPJ6PH2RXRAZFSMUJ2HQ": {
+        "diversity_ratio": 0.8,
+        "category_entropy": 1.922,
+        "n_unique_categories": 4,
+        "top_k": 5,
+        "display_name": "Amazon User FSMUJ2HQ"
+      },
+      "amazon_AE26V67R6SYRBNAVUGZ2ROE5BAFQ": {
+        "diversity_ratio": 0.8,
+        "category_entropy": 1.922,
+        "n_unique_categories": 4,
+        "top_k": 5,
+        "display_name": "Amazon User ROE5BAFQ"
+      },
+      "amazon_AE2D6CPWGFIJUD5RW3HB2D4KQSLA": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User 2D4KQSLA"
+      },
+      "amazon_AE2DWV6OPSOUHDZEZQBC2MRYAOXA": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User 2MRYAOXA"
+      },
+      "amazon_AE2EUSV2YAM6MV62P4JCC3XBKWTQ": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User C3XBKWTQ"
+      },
+      "amazon_AE2JU3MEWV5JD7DLS5RLWRQK2OQQ": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User WRQK2OQQ"
+      },
+      "amazon_AE2ODQD5CBSZKNZLJCDKZFYKOTEQ": {
+        "diversity_ratio": 0.8,
+        "category_entropy": 1.922,
+        "n_unique_categories": 4,
+        "top_k": 5,
+        "display_name": "Amazon User ZFYKOTEQ"
+      },
+      "amazon_AE2TA5GQH4JI5RQ4W5H5PQOVYBGA": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User PQOVYBGA"
+      },
+      "amazon_AE34VA3WMMQ66SY7HAFPRZNZUEBA": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User RZNZUEBA"
+      },
+      "amazon_AE3KLVXGZPANXE5XLXYKHTVAZ3FQ": {
+        "diversity_ratio": 0.8,
+        "category_entropy": 1.922,
+        "n_unique_categories": 4,
+        "top_k": 5,
+        "display_name": "Amazon User HTVAZ3FQ"
+      },
+      "amazon_AE3LOM7QWQC2PDQJ3KDBWSTIAEXA": {
+        "diversity_ratio": 0.8,
+        "category_entropy": 1.922,
+        "n_unique_categories": 4,
+        "top_k": 5,
+        "display_name": "Amazon User WSTIAEXA"
+      },
+      "amazon_AE3Q6AEWP7Y7CH4N6IWEP4YBNP2A": {
+        "diversity_ratio": 1.0,
+        "category_entropy": 2.322,
+        "n_unique_categories": 5,
+        "top_k": 5,
+        "display_name": "Amazon User P4YBNP2A"
+      }
+    }
+  }
+}

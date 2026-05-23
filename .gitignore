@@ -1,0 +1,40 @@
+# Environment — never commit real keys
+.env
+
+# Data stores
+chroma_db/
+oracle_xn.db
+oracle_graph.pkl
+*.pkl
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Datasets (large files, process locally)
+data/raw/
+*.jsonl
+*.jsonl.gz
+*.json.gz
+*.tar
+*.tar.gz
+*.zip
+
+# Generated outputs
+*.pdf
+reports/eval_measured.json
+
+# Temp scripts
+scripts/check_titles.py
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
