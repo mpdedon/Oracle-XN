@@ -204,11 +204,99 @@ class RecommendationEngine:
             include_explanations=include_explanations,
         )
 
+    # ── Stub title vocabulary ─────────────────────────────────────────────────
+    _STUB_PRODUCT_TYPES: Dict[str, List[str]] = {
+        "Fashion": [
+            "Ankara Print Fabric", "Men's Casual Shirt", "Ladies' Gown",
+            "Traditional Attire", "Unisex Fashion Wear", "Women's Handbag",
+            "Men's Formal Shoes", "Kids' School Wear",
+        ],
+        "Electronics": [
+            "Bluetooth Speaker", "Portable Power Bank", "LED Desk Lamp",
+            "Smart Earbuds", "USB-C Hub", "Wireless Charger",
+            "Action Camera", "Mini Projector",
+        ],
+        "Mobile Phones": [
+            "Android Smartphone", "4G LTE Phone", "Budget Touch Phone",
+            "Phone Charging Kit", "Tempered Glass Screen Protector",
+            "Protective Phone Case", "OTG Flash Drive", "SIM-Free Handset",
+        ],
+        "Beauty & Personal Care": [
+            "Organic Face Moisturiser", "Natural Hair Growth Oil",
+            "Brightening Body Lotion", "Beard Grooming Kit",
+            "Aloe Vera Skin Gel", "Vitamin C Serum",
+            "Ladies' Fragrance Set", "Exfoliating Scrub",
+        ],
+        "Baby & Kids": [
+            "Infant Feeding Bottle Set", "Soft Learning Toy",
+            "Baby Carrier Wrap", "Toddler Potty Trainer",
+            "Children's Educational Kit", "Baby Sleeping Nest",
+            "Kids' Activity Board", "Diaper Changing Mat",
+        ],
+        "Appliances": [
+            "2-Burner Gas Cooker", "Table Fan (Rechargeable)",
+            "Blender & Smoothie Maker", "Rice Cooker (3L)",
+            "Clothes Pressing Iron", "Inverter Battery Charger",
+            "Chest Freezer (Tabletop)", "Microwave Oven",
+        ],
+        "Food & Groceries": [
+            "Organic Whole Grain Rice", "Cold-Pressed Groundnut Oil",
+            "Premium Dried Spice Mix", "Artisan Honey (500g)",
+            "Mixed Herbal Tea Bags", "Instant Oat Porridge",
+            "Tomato Paste (Concentrate)", "Seasoning Cubes Pack",
+        ],
+        "Home & Living": [
+            "Memory Foam Pillow", "Non-Stick Cooking Pot Set",
+            "Curtain Blackout Set", "Bathroom Organiser Rack",
+            "LED Strip Lighting Kit", "Decorative Wall Clock",
+            "Foldable Storage Box", "Ceramic Dinner Set",
+        ],
+        "Sports & Fitness": [
+            "Adjustable Resistance Bands", "Yoga Mat (Non-Slip)",
+            "Running Shoes", "Jump Rope (Speed)",
+            "Dumbbell Weight Set", "Cycling Helmet",
+            "Sports Water Bottle", "Gym Gloves",
+        ],
+        "Health & Wellness": [
+            "Multivitamin Supplement", "Digital Blood Pressure Monitor",
+            "Herbal Immune Booster", "Omega-3 Fish Oil Capsules",
+            "First Aid Kit (Complete)", "Pulse Oximeter",
+            "Calorie Tracking Journal", "Reflexology Foot Massager",
+        ],
+        "Automotive": [
+            "Dash Cam (Full HD)", "Car Phone Mount",
+            "Tyre Pressure Gauge", "Seat Cushion (Ergonomic)",
+            "Car Air Freshener", "Jump Starter Power Bank",
+            "Window Tint Film Kit", "Engine Oil Additive",
+        ],
+    }
+
+    _STUB_TIER_PREFIX: Dict[str, str] = {
+        "budget": "Affordable",
+        "mid_range": "Quality",
+        "premium": "Premium",
+        "luxury": "Luxury",
+    }
+
+    @staticmethod
+    def _build_stub_title(item_id: str, category: str, price_tier: str) -> str:
+        """Generate a consistent, human-readable product title for stub items."""
+        types = RecommendationEngine._STUB_PRODUCT_TYPES.get(
+            category,
+            ["Consumer Product", "Household Item", "General Merchandise"],
+        )
+        # Deterministic pick using item_id tail characters
+        idx = sum(ord(c) for c in (item_id or "X")[-6:]) % len(types)
+        product_type = types[idx]
+        prefix = RecommendationEngine._STUB_TIER_PREFIX.get(price_tier, "")
+        return f"{prefix} {product_type}".strip() if prefix else product_type
+
     def _enrich_candidates_from_db(self, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Bulk-fetch full SQLite item data to overlay on ChromaDB candidates.
         Ensures titles, descriptions, brands, and attributes are always populated.
-        Product codes (Amazon ASINs etc.) are replaced with human-readable identifiers.
+        Product codes (Amazon ASINs / bare category stubs) are replaced with
+        human-readable product-type names drawn from a Nigerian-context vocabulary.
         """
         if not self.memory:
             return candidates
@@ -236,26 +324,35 @@ class RecommendationEngine:
                     "_retrieval_score": cand.get("_retrieval_score", 0.3),
                     "similarity_score": cand.get("similarity_score", 0.0),
                 }
-                # Ensure title is human-readable (not a bare product code or "Product ASIN" stub)
-                title = merged.get("title", "").strip()
-                is_code_title = (
+                title = (merged.get("title") or "").strip()
+                cat = merged.get("category", "")
+                # Detect stub titles: bare product codes, bare category names, or very short tokens
+                is_stub = (
                     not title
-                    or (len(title) <= 15 and title.replace("-", "").isalnum())
-                    or (title.startswith("Product ") and len(title) < 22)
+                    or title.startswith("Product ")
+                    or title == cat
+                    or (len(title) <= 15 and title.replace("-", "").replace("&", "").replace(" ", "").isalnum())
                 )
-                if is_code_title:
-                    # Build a descriptive fallback from available fields
-                    cat = merged.get("category", "")
-                    sub = merged.get("sub_category", "")
-                    desc = merged.get("description", "")
-                    # Use description if it contains real product info (not just "Category product")
-                    desc_clean = ""
-                    if desc and not desc.lower().endswith(" product") and len(desc) > 15:
-                        desc_clean = desc[:60].strip()
-                    parts = [p for p in [sub or cat, desc_clean] if p]
-                    merged["title"] = " — ".join(parts) if parts else cat or "Unknown Item"
+                if is_stub:
+                    merged["title"] = self._build_stub_title(
+                        item_id, cat, merged.get("price_tier", "")
+                    )
                 enriched.append(merged)
             else:
+                # Item missing from DB — still replace bare code with vocab title
+                title = (cand.get("title") or "").strip()
+                cat = cand.get("category", "")
+                is_stub = (
+                    not title
+                    or title.startswith("Product ")
+                    or title == cat
+                    or (len(title) <= 15 and title.replace("-", "").replace("&", "").replace(" ", "").isalnum())
+                )
+                if is_stub:
+                    cand = {
+                        **cand,
+                        "title": self._build_stub_title(item_id, cat, cand.get("price_tier", "")),
+                    }
                 enriched.append(cand)
 
         return enriched

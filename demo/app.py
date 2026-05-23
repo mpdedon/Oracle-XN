@@ -950,16 +950,17 @@ with tab_recs:
                 risk_badge = "🛡️ Verified" if fake_risk < 0.15 else ("⚠️ Check seller" if fake_risk > 0.35 else "")
                 context_fit = rec.get("context_fit", "")
                 extra_lines = f"<div style='color:var(--text-muted);font-size:0.78rem;margin-top:0.3rem'>📍 {context_fit}</div>" if context_fit else ""
-                # Build display title — never show product codes or bare category names
+                # Build display title — engine should already have resolved stubs,
+                # but catch any raw product codes that slip through (safety net only).
                 _raw_title = rec.get("title", "").strip()
+                _tier_label = {"budget": "Budget", "mid_range": "Mid-Range", "premium": "Premium", "luxury": "Luxury"}.get(price_tier, "")
                 _is_stub = (
                     not _raw_title
-                    or (_raw_title.startswith("Product ") and len(_raw_title) < 22)
-                    or (_raw_title == cat)
-                    or (len(_raw_title) <= 15 and _raw_title.replace("-", "").isalnum())
+                    or _raw_title.startswith("Product ")
+                    or _raw_title == cat
+                    or (len(_raw_title) <= 12 and _raw_title.replace("-", "").replace(" ", "").isalnum())
                 )
                 if _is_stub:
-                    _tier_label = {"budget": "Budget", "mid_range": "Mid-Range", "premium": "Premium", "luxury": "Luxury"}.get(price_tier, "")
                     _display_title = " ".join(p for p in [_tier_label, sub_cat or cat, "Item"] if p)
                 else:
                     _display_title = _raw_title
