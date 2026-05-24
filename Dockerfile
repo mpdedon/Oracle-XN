@@ -38,6 +38,9 @@ COPY . .
 # Ensure data directories exist
 RUN mkdir -p /data/chroma_db /data/sqlite
 
+# Pre-download sentence-transformers model so containers start instantly
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+
 # Env defaults (override via docker-compose or -e flags)
 ENV PYTHONUNBUFFERED=1 \
     DATABASE_URL="sqlite:////data/sqlite/oracle_xn.db" \
