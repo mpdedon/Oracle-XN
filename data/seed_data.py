@@ -346,6 +346,287 @@ SEED_USERS: List[Dict[str, Any]] = [
         "average_rating_given": 3.6,
         "interaction_count": 55,
     },
+    {
+        "user_id": "user_008",
+        "display_name": "Yetunde Oladele-Coker",
+        "age": 31,
+        "region": "Lagos",
+        "occupation": "Marketing Manager (FMCG)",
+        "price_sensitivity": 0.42,
+        "quality_weight": 0.82,
+        "delivery_speed_importance": 0.78,
+        "personality": {
+            "openness": 0.78,
+            "conscientiousness": 0.80,
+            "extraversion": 0.72,
+            "agreeableness": 0.70,
+            "neuroticism": 0.38,
+            "value_consciousness": 0.60,
+            "social_proof_sensitivity": 0.65,
+            "brand_loyalty": 0.72,
+            "patience_score": 0.50,
+        },
+        "linguistic_style": {
+            "uses_pidgin": True,
+            "uses_yoruba_phrases": True,
+            "formality_level": 0.55,
+            "emoji_usage": 0.60,
+            "verbosity": 0.70,
+            "characteristic_phrases": ["Omo!", "This brand is deceiving us", "I see what they did there", "Value for money sha"],
+        },
+        "category_preferences": {
+            "Fashion": 0.88,
+            "Beauty & Personal Care": 0.85,
+            "Home & Living": 0.72,
+            "Health & Wellness": 0.60,
+            "Food & Groceries": 0.55,
+        },
+        "narrative_identity": (
+            "Yetunde is a Victoria Island marketing manager who understands exactly how brands "
+            "manipulate shoppers — and calls it out relentlessly in reviews. She earns well and "
+            "shops at mid-to-premium tier but is deeply suspicious of over-promising packaging. "
+            "Raised in Mushin, she never forgot her roots despite the VI address, and balances "
+            "aspirational taste with acute value radar. She influences colleagues' fashion and "
+            "beauty choices and often writes the reviews she wishes she'd seen before buying."
+        ),
+        "current_emotion": {"emotion": "neutral", "intensity": 0.65, "life_context": "weekend_leisure"},
+        "average_rating_given": 3.9,
+        "interaction_count": 58,
+    },
+    {
+        "user_id": "user_009",
+        "display_name": "Usman Danladi",
+        "age": 20,
+        "region": "Kaduna",
+        "occupation": "Motorcycle Mechanic Apprentice",
+        "price_sensitivity": 0.96,
+        "quality_weight": 0.65,
+        "delivery_speed_importance": 0.45,
+        "personality": {
+            "openness": 0.38,
+            "conscientiousness": 0.70,
+            "extraversion": 0.50,
+            "agreeableness": 0.72,
+            "neuroticism": 0.40,
+            "value_consciousness": 0.98,
+            "social_proof_sensitivity": 0.85,
+            "brand_loyalty": 0.30,
+            "patience_score": 0.70,
+        },
+        "linguistic_style": {
+            "uses_pidgin": False,
+            "uses_hausa_phrases": True,
+            "formality_level": 0.35,
+            "emoji_usage": 0.20,
+            "verbosity": 0.25,
+            "characteristic_phrases": ["Na gode", "Good price", "E work?", "Original ne?"],
+        },
+        "category_preferences": {
+            "Automotive": 0.90,
+            "Mobile Phones": 0.75,
+            "Food & Groceries": 0.65,
+            "Electronics": 0.55,
+            "Fashion": 0.40,
+        },
+        "narrative_identity": (
+            "Usman is a 20-year-old mechanic apprentice in Kaduna who started buying online after "
+            "his oga's son showed him Jumia on a secondhand Itel phone. Every purchase is "
+            "a calculated risk — he saves for weeks before ordering and reads every review aloud "
+            "to colleagues for validation. He buys engine oil, spare parts, and occasionally a "
+            "budget phone. His reviews are terse and purely functional: 'e work well' or 'fake'. "
+            "He's deeply swayed by community word-of-mouth and trusts nothing premium-looking."
+        ),
+        "current_emotion": {"emotion": "suspicious", "intensity": 0.70, "life_context": "budget_crunch"},
+        "average_rating_given": 4.0,
+        "interaction_count": 18,
+    },
+    {
+        "user_id": "user_010",
+        "display_name": "Blessing Effiong",
+        "age": 29,
+        "region": "Port Harcourt",
+        "occupation": "Registered Nurse (UCTH)",
+        "price_sensitivity": 0.58,
+        "quality_weight": 0.90,
+        "delivery_speed_importance": 0.65,
+        "personality": {
+            "openness": 0.62,
+            "conscientiousness": 0.88,
+            "extraversion": 0.48,
+            "agreeableness": 0.85,
+            "neuroticism": 0.35,
+            "value_consciousness": 0.65,
+            "social_proof_sensitivity": 0.60,
+            "brand_loyalty": 0.68,
+            "patience_score": 0.72,
+        },
+        "linguistic_style": {
+            "uses_pidgin": False,
+            "formality_level": 0.70,
+            "emoji_usage": 0.25,
+            "verbosity": 0.75,
+            "characteristic_phrases": ["As a healthcare professional", "Check the NAFDAC number", "I'd recommend this", "Clinical grade?"],
+        },
+        "category_preferences": {
+            "Health & Wellness": 0.92,
+            "Food & Groceries": 0.75,
+            "Baby & Kids": 0.70,
+            "Beauty & Personal Care": 0.65,
+            "Books & Stationery": 0.55,
+        },
+        "narrative_identity": (
+            "Blessing is a nurse at University of Calabar Teaching Hospital who applies clinical "
+            "rigour to every product she buys. She's the person her family and ward colleagues "
+            "ask before buying health products, and she takes that responsibility seriously. "
+            "She checks NAFDAC numbers, reads ingredient lists, and will reject a product if she "
+            "suspects adulteration. Delivery to Calabar frustrates her — couriers often treat it "
+            "as a secondary city. Her reviews are detailed, calm, and practically helpful."
+        ),
+        "current_emotion": {"emotion": "content", "intensity": 0.60, "life_context": "at_home"},
+        "average_rating_given": 4.2,
+        "interaction_count": 42,
+    },
+    {
+        "user_id": "user_011",
+        "display_name": "Chidi Obiechina",
+        "age": 56,
+        "region": "Aba",
+        "occupation": "Textile Wholesale Trader",
+        "price_sensitivity": 0.85,
+        "quality_weight": 0.78,
+        "delivery_speed_importance": 0.55,
+        "personality": {
+            "openness": 0.35,
+            "conscientiousness": 0.88,
+            "extraversion": 0.55,
+            "agreeableness": 0.58,
+            "neuroticism": 0.42,
+            "value_consciousness": 0.90,
+            "social_proof_sensitivity": 0.75,
+            "brand_loyalty": 0.55,
+            "patience_score": 0.78,
+        },
+        "linguistic_style": {
+            "uses_pidgin": True,
+            "uses_igbo_phrases": True,
+            "formality_level": 0.60,
+            "emoji_usage": 0.10,
+            "verbosity": 0.40,
+            "characteristic_phrases": ["Nna", "Original?", "Aba-made better pass this", "No price negotiation?"],
+        },
+        "category_preferences": {
+            "Fashion": 0.88,
+            "Automotive": 0.75,
+            "Home & Living": 0.70,
+            "Food & Groceries": 0.65,
+            "Health & Wellness": 0.50,
+        },
+        "narrative_identity": (
+            "Chidi has traded textiles in Ariaria market for 30 years and is deeply skeptical of "
+            "anything online. His grown children dragged him onto Jumia two years ago and he still "
+            "approaches each purchase like a trap. He's an expert on fabric quality — he can detect "
+            "Aba-made fakes faster than any algorithm. He occasionally buys automotive supplies and "
+            "household items online but insists on calling the seller first. His reviews are sparse, "
+            "blunt, and earned: a 5-star from Chidi means genuine quality."
+        ),
+        "current_emotion": {"emotion": "suspicious", "intensity": 0.65, "life_context": "at_work"},
+        "average_rating_given": 3.4,
+        "interaction_count": 23,
+    },
+    {
+        "user_id": "user_012",
+        "display_name": "Toyin Afolabi",
+        "age": 38,
+        "region": "Lagos",
+        "occupation": "Senior Tech Consultant (UK Returnee)",
+        "price_sensitivity": 0.28,
+        "quality_weight": 0.92,
+        "delivery_speed_importance": 0.85,
+        "personality": {
+            "openness": 0.72,
+            "conscientiousness": 0.88,
+            "extraversion": 0.55,
+            "agreeableness": 0.50,
+            "neuroticism": 0.48,
+            "value_consciousness": 0.45,
+            "social_proof_sensitivity": 0.35,
+            "brand_loyalty": 0.70,
+            "patience_score": 0.30,
+        },
+        "linguistic_style": {
+            "uses_pidgin": False,
+            "uses_yoruba_phrases": False,
+            "formality_level": 0.72,
+            "emoji_usage": 0.20,
+            "verbosity": 0.82,
+            "characteristic_phrases": ["Compared to UK standards", "Disappointing for the price", "I expected better", "Build quality is subpar"],
+        },
+        "category_preferences": {
+            "Electronics": 0.92,
+            "Mobile Phones": 0.88,
+            "Home & Living": 0.78,
+            "Sports & Fitness": 0.65,
+            "Books & Stationery": 0.60,
+        },
+        "narrative_identity": (
+            "Toyin returned from seven years in London in 2022 and has been in culture shock ever "
+            "since — not at Nigeria itself, but at the premium prices charged for mediocre quality. "
+            "He earns in pounds remotely and buys without flinching at price, but flinches "
+            "constantly at quality gaps. He's the archetype who gives 3-star reviews on premium "
+            "products not because they're bad but because 'for this price, this should be better.' "
+            "His reviews are analytical, comparative, and occasionally condescending — but always accurate."
+        ),
+        "current_emotion": {"emotion": "frustrated", "intensity": 0.58, "life_context": "at_home"},
+        "average_rating_given": 3.4,
+        "interaction_count": 37,
+    },
+    {
+        "user_id": "user_013",
+        "display_name": "Maryam Abubakar",
+        "age": 25,
+        "region": "Kano",
+        "occupation": "Secondary School Teacher",
+        "price_sensitivity": 0.90,
+        "quality_weight": 0.80,
+        "delivery_speed_importance": 0.40,
+        "personality": {
+            "openness": 0.42,
+            "conscientiousness": 0.88,
+            "extraversion": 0.35,
+            "agreeableness": 0.90,
+            "neuroticism": 0.38,
+            "value_consciousness": 0.92,
+            "social_proof_sensitivity": 0.88,
+            "brand_loyalty": 0.65,
+            "patience_score": 0.90,
+        },
+        "linguistic_style": {
+            "uses_pidgin": False,
+            "uses_hausa_phrases": True,
+            "formality_level": 0.75,
+            "emoji_usage": 0.10,
+            "verbosity": 0.35,
+            "characteristic_phrases": ["Alhamdulillah", "Is it halal?", "Na gode", "Good for family"],
+        },
+        "category_preferences": {
+            "Food & Groceries": 0.88,
+            "Baby & Kids": 0.82,
+            "Health & Wellness": 0.78,
+            "Fashion": 0.72,
+            "Home & Living": 0.60,
+        },
+        "narrative_identity": (
+            "Maryam is a young teacher in Katsina who shops for her whole household — husband, "
+            "two young children, and elderly mother-in-law. Every purchase is committee-approved: "
+            "she asks her co-teachers, checks WhatsApp groups, and waits for three positive "
+            "recommendations before buying. Halal certification matters deeply for food and health "
+            "items. She's patient about delivery but devastated by wrong items or poor packaging. "
+            "Her reviews are brief, sincere, and community-oriented: she writes for other mothers."
+        ),
+        "current_emotion": {"emotion": "anxious", "intensity": 0.72, "life_context": "at_home"},
+        "average_rating_given": 4.3,
+        "interaction_count": 29,
+    },
 ]
 
 
@@ -1793,6 +2074,42 @@ SEED_INTERACTIONS += [
     {"user_id": "user_007", "item_id": "item_057", "type": "purchase", "rating": 5.0},
     {"user_id": "user_007", "item_id": "item_066", "type": "purchase", "rating": 5.0},
     {"user_id": "user_007", "item_id": "item_058", "type": "purchase", "rating": 4.0},
+    # Yetunde — VI marketing manager, fashion/beauty
+    {"user_id": "user_008", "item_id": "item_041", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_008", "item_id": "item_044", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_008", "item_id": "item_048", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_008", "item_id": "item_051", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_008", "item_id": "item_084", "type": "wishlist"},
+    # Usman — Kaduna mechanic apprentice, budget buyer
+    {"user_id": "user_009", "item_id": "item_025", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_009", "item_id": "item_078", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_009", "item_id": "item_082", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_009", "item_id": "item_061", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_009", "item_id": "item_032", "type": "purchase", "rating": 4.5},
+    # Blessing — Calabar nurse, health-focused
+    {"user_id": "user_010", "item_id": "item_054", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_010", "item_id": "item_055", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_010", "item_id": "item_059", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_010", "item_id": "item_056", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_010", "item_id": "item_071", "type": "wishlist"},
+    # Chidi — Aba textile trader, skeptical senior buyer
+    {"user_id": "user_011", "item_id": "item_043", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_011", "item_id": "item_041", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_011", "item_id": "item_079", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_011", "item_id": "item_086", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_011", "item_id": "item_060", "type": "view"},
+    # Toyin — Lagos UK returnee, premium critical buyer
+    {"user_id": "user_012", "item_id": "item_023", "type": "purchase", "rating": 3.5},
+    {"user_id": "user_012", "item_id": "item_027", "type": "purchase", "rating": 4.0},
+    {"user_id": "user_012", "item_id": "item_030", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_012", "item_id": "item_085", "type": "purchase", "rating": 3.5},
+    {"user_id": "user_012", "item_id": "item_017", "type": "purchase", "rating": 4.0},
+    # Maryam — Katsina teacher, family/halal shopper
+    {"user_id": "user_013", "item_id": "item_070", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_013", "item_id": "item_071", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_013", "item_id": "item_060", "type": "purchase", "rating": 4.5},
+    {"user_id": "user_013", "item_id": "item_047", "type": "purchase", "rating": 5.0},
+    {"user_id": "user_013", "item_id": "item_055", "type": "wishlist"},
 ]
 
 
