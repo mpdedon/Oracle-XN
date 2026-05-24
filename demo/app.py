@@ -32,10 +32,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Theme state ───────────────────────────────────────────────────────────────
-if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
-_is_light = st.session_state.theme == "light"
+# ── Theme state — driven directly by the sidebar toggle widget key ────────────
+_is_light = st.session_state.get("theme_toggle_cb", False)
 
 # ── CSS (theme-aware) ─────────────────────────────────────────────────────────
 # Base colours are CSS-variable-driven; Python swaps the root block per theme.
@@ -723,23 +721,19 @@ profile = memory.get_profile(selected_user_id)
 
 st.sidebar.divider()
 
-# ── Theme toggle ──────────────────────────────────────────────────────────────
-_theme_on_light = st.sidebar.toggle(
+# ── Theme toggle — widget key IS the session state; Streamlit reruns on change ─
+st.sidebar.toggle(
     "☀️ Light Mode",
-    value=(st.session_state.theme == "light"),
     key="theme_toggle_cb",
     help="Switch between dark (default) and light mode.",
 )
-if _theme_on_light != (st.session_state.theme == "light"):
-    st.session_state.theme = "light" if _theme_on_light else "dark"
-    st.rerun()
 
 st.sidebar.divider()
 
 # ── Fast / Power mode ──────────────────────────────────────────────────────────
 fast_mode = st.sidebar.toggle(
     "⚡ Fast Mode",
-    value=False,
+    value=True,
     help="ON = instant retrieval-only recommendations (~1s).\nOFF = full LLM behavioural reasoning (~5–15s).",
     key="fast_mode_toggle",
 )
